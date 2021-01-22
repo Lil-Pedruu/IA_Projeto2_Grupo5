@@ -3,12 +3,16 @@ import ast
 import random
 
 
+# Função que executa um episódio.
 def episode(c, res: int):
     if res != -1:
         msg = c.execute("info", "goal")
         goal = ast.literal_eval(msg)
         directions = ["left", "right", "forward"]
+        msg = c.execute("info", "position")
+        pos = ast.literal_eval(msg)
         path = []
+        path.append(pos)
         end = False
         while not end:
             msg = c.execute("info", "view")
@@ -16,34 +20,45 @@ def episode(c, res: int):
             if objects[0] == 'obstacle' or objects[0] == 'bomb':
                 c.execute("command", "left")
             else:
-                msg = c.execute("info", "position")
-                pos = ast.literal_eval(msg)
                 if pos == goal:
                     print('GOAL found!')
                     end = True
                 else:
-                    dir = random.choice(directions)
-                    c.execute('command', dir)
+                    direction = random.choice(directions)
+                    c.execute('command', direction)
+                    msg = c.execute("info", "position")
+                    pos = ast.literal_eval(msg)
+                    if direction == 'forward':
+                        path.append(pos)
 
-                path += pos
-
+        print('Path:\n', path)
         return path
 
 
-def updateQTable(QTable, c, path):
-    msg = c.execute("info", "position")
-    pos = ast.literal_eval(msg)
-    #reward = QTable[pos[0]][pos[1]]
+# Função para atualizar tabela Q learning.
+# Recebe como argumentos a respetiva tabela e o percurso feito pelo agente.
+def updateQTable(QTable, path):
+    prevPos = path[len(path)-1]  # Posição do goal.
+    prevX, prevY = prevPos[0], prevPos[1]
+    for i in range(len(path)-2, -1, -1):
+        newPos = path[i]
+        x, y = newPos[0], newPos[1]
+        if QTable[x][y] < 0.9*QTable[prevX][prevY]:
+            QTable[x][y] = 0.9*QTable[prevX][prevY]
+            prevX, prevY = x, y
 
-    return reward
+    print('QTable:')
+    for column in QTable:
+        print(column)
+
+    return QTable
 
 
+# Main.
 def main():
     c = client.Client('127.0.0.1', 50001)
     res = c.connect()
     random.seed()  # To become true random, a different seed is used! (clock time)
-    #msg = c.execute("info", "position")
-    #posInicial = ast.literal_eval(msg)
 
     # Inicializar Q Table.
     QTable = []
@@ -54,15 +69,19 @@ def main():
 
     msg = c.execute("info", "goal")
     goal = ast.literal_eval(msg)
-    QTable[goal[0]][goal[1]] = 100
+    QTable[goal[0]][goal[1]] = 100  # Reward do Goal igual a 100.
     print(QTable)
 
-    numEpisodes = 2
+    # Executar episódios.
+    numEpisodes = 100
     for n in range(numEpisodes):
-        print(n+1, 'º episode')
-        path = episode(c, res)
+        print(n + 1, 'º episode')
+        path = episode(c, res)  # Realizar um episódio.
+        QTable = updateQTable(QTable, path)  # Atualizar matriz Q-learning.
+        c.execute("command", "home")  # Voltar ao ponto de partida após um episódio.
 
-        #updateQTable(QTable, path)
+    # Depois de concluídos todos os episódios, efetuar trajeto óptimo.
+    # optimalPath(QTable, c, res)
 
 
 main()

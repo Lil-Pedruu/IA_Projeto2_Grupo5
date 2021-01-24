@@ -37,7 +37,7 @@ def episode(c, res: int):
 
 
 # Função para atualizar tabela Q learning.
-# Recebe como argumentos a respetiva tabela e o percurso feito pelo agente.
+# Recebe como argumentos a respetiva tabela e o percurso feito pelo agente num episódio.
 def updateQTable(QTable, path, c):
     msg = c.execute("info", "goal")
     goal = ast.literal_eval(msg)
@@ -62,6 +62,8 @@ def updateQTable(QTable, path, c):
     return QTable
 
 
+# Função para marcar as setas com a melhor ação possível.
+# Recebe a tabela Q Learning final.
 def markArrows(QTable, c):
     for column in range(len(QTable)):
         for row in range(len(QTable[column])):
@@ -69,14 +71,11 @@ def markArrows(QTable, c):
             bestDirection = ''
             for direction in ['north', 'south', 'east', 'west']:
                 reward = QTable[column][row][direction]
-                print('rew', reward)
                 if reward > bestReward:
                     bestDirection = direction
                     bestReward = reward
-
-            print('ola',bestDirection, bestReward)
-            c.execute('marrow', bestDirection + ',' + str(row) + ',' + str(column))
-            #time.sleep(0.2)
+                    c.execute('marrow', bestDirection + ',' + str(row) + ',' + str(column))
+                    time.sleep(0.2)
 
 
 # Main.
@@ -102,15 +101,17 @@ def main(numEpisodes):
         for direction in ['north', 'south', 'east', 'west']:
             QTable[goal[0]][goal[1]][direction] = 100  # Reward do Goal igual a 100.
 
+        # Executar episódios.
         for n in range(numEpisodes):
             print(n + 1, 'º episode')
             path = episode(c, res)  # Realizar um episódio.
             QTable = updateQTable(QTable, path, c)  # Atualizar matriz Q-learning.
-            c.execute("command", "home")  # Voltar ao ponto de partida após um episódio.
+            if n < numEpisodes-1:
+                c.execute("command", "home")  # Voltar ao ponto de partida após um episódio.
 
         # Depois de concluídos todos os episódios, mostrar setas.
         markArrows(QTable, c)
-        #time.sleep(20)
+        input()
 
 
-main(numEpisodes=1)
+main(numEpisodes=50)

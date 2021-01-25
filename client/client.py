@@ -24,7 +24,7 @@ class Client:
 #            print('A connection error occurred!')
 #            return(-1)
 
-    def execute(self, action, value, sleep_t=0):
+    def execute(self, action, value, sleep_t=0): # <--- Igualar a 0 sleep_t para tornar mais rápido cada episódio.
         self.s.sendall(str.encode(action+" "+value))
         data = self.s.recv(2048)
         print('Received', repr(data))

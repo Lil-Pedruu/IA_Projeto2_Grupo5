@@ -3,7 +3,7 @@
 #### Realizado por Manuel Cabral e Pedro Melo - Grupo 5.
 
 
-##### Neste projeto desenvolvemos uma aprendizagem sem modelo através do método de Monte Carlo.
+##### Neste projeto desenvolvemos uma aprendizagem sem modelo.
 - Neste método o agente não conhece recompensas e move-se aleatoriamente pelo mundo até chegar ao Goal, completando assim um episódio.
 - Após cada episódio é atualizada a tabela Q Learning. Nesta tabela constam recompensas para cada ação possível em cada estado possível, que são calculadas desde o Goal até à posição inicial, para cada episódio.
 - Depois de concluídos todos os episódios são marcadas setas no tabuleiro a indicar a melhor ação a tomar em cada estado. 

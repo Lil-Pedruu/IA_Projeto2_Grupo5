@@ -6,10 +6,19 @@ import time
 
 # Função que executa um episódio.
 def episode(c, res: int):
+    msg = c.execute('info', 'targets')
+    targets = ast.literal_eval(msg)
+    targetList= []
+    for column in range(len(targets)):
+        for row in range(len(targets[column])):
+            if targets[column][row] == 1:
+                targetList.append((column, row))
+
     msg = c.execute("info", "goal")
     goal = ast.literal_eval(msg)
     commands = ["left", "right", "forward"]
     path = []
+    foundGoal = False
     end = False
     while not end:
         msg = c.execute("info", "view")
@@ -20,8 +29,12 @@ def episode(c, res: int):
         if objects[0] == 'obstacle' or objects[0] == 'bomb':
             c.execute("command", "left")
         else:
-            if pos == goal:
-                print('GOAL found!')
+            if (pos == goal) or (pos in targetList):
+                if pos == goal:
+                    print('GOAL found!')
+                    foundGoal = True
+                else:
+                    print('TARGET found!')
                 end = True
             else:
                 if command == 'forward':
@@ -33,7 +46,7 @@ def episode(c, res: int):
                 c.execute('command', command)
 
     print('Path:\n', path)
-    return path
+    return [path, foundGoal]
 
 
 # Função para atualizar tabela Q learning.
@@ -101,11 +114,24 @@ def main(numEpisodes):
         for direction in ['north', 'south', 'east', 'west']:
             QTable[goal[0]][goal[1]][direction] = 100  # Reward do Goal igual a 100.
 
+        msg = c.execute('info', 'targets')
+        targets = ast.literal_eval(msg)
+        for col in range(len(targets)):
+            for ro in range(len(targets[col])):
+                if targets[col][ro] == 1:
+                    for direction in ['north', 'south', 'east', 'west']:
+                        QTable[col][ro][direction] = -100  # Reward dos targets.
+
+        for x in QTable:
+            print(x)
         # Executar episódios.
         for n in range(numEpisodes):
             print(n + 1, 'º episode')
-            path = episode(c, res)  # Realizar um episódio.
-            QTable = updateQTable(QTable, path, c)  # Atualizar matriz Q-learning.
+            path = episode(c, res)[0]  # Realizar um episódio.
+            if episode(c, res)[1]:
+                QTable = updateQTable(QTable, path, c)  # Atualizar matriz Q-learning.
+                for y in QTable:
+                    print(y)
             if n < numEpisodes-1:
                 c.execute("command", "home")  # Voltar ao ponto de partida após um episódio.
 
@@ -114,4 +140,4 @@ def main(numEpisodes):
         input()
 
 
-main(numEpisodes=50)
+main(numEpisodes=200)

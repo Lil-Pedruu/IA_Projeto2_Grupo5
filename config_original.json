@@ -2,7 +2,7 @@
   "host": "127.0.0.1",
   "port": 50001,
 
-  "graphics_mode": "other",
+  "graphics_mode": "bitmap",
   "image_directory": "./images/",
 
   "background_color": "lightgray",
@@ -42,39 +42,28 @@
     "I": "invisible obstacle",
     "B": "bomb",
     "G": "goal",
-    "A": "agent start position (only 1)"
+    "A": "agent start position (only 1)",
+    "T": "target"
   },
   "object_map":[
-    "OOOOOOOOOOOOOOO",
-    "O     OO   O  O",
-    "O      O   O  O",
-    "O      O   O  O",
-    "O      O      O",
-    "O      O      O",
-    "O      OG     O",
-    "OOOO          O",
-    "O             O",
-    "O        A    O",
-    "OOOOOOOOOOOOOOO"
+    "OOOOOOOO",
+    "O G    O",
+    "O      O",
+    "O T  A O",
+    "OOOOOOOO"
   ],
     "reward_dictionary": {
-    "N": -1,
-    "2": 2,
-    "5": 5,
-    "G": 10,
+    "N": 0,
+    "J": 2,
+    "K": -50,
+    "G": 100,
     "R": "random"
   },
   "reward_map" : [
-    "NNNNNNNNNNNNNNN",
-    "NNNNNNNNNNNNNNN",
-    "NNNNNNNNNNNNNNN",
-    "NNNNNNNNNNNNNNN",
-    "NNNNNNNNNNNNNNN",
-    "NNNNNNNNNNNNNNN",
-    "NNNNNNN2GNNNNNN",
-    "NNNNNNNNNNNNNNN",
-    "NGNNNNNNNNNNNNN",
-    "NNNNNN22NNNNNNN",
-    "NNNNNNNNNNNNNNN"
+    "NNNNNNNN",
+    "NNGNNNNN",
+    "NNNNNNNN",
+    "NNNNNNNN",
+    "NNNNNNNN"
   ]
 }

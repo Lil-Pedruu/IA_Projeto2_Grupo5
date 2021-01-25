@@ -210,6 +210,16 @@ class Goal(GameObject):
     def __init__(self, name, x, y, config):
         super().__init__(name, "goal", config, x, y, "south")
 
+# ------------------------------------------------------------
+# CLASS TARGET:
+# ------------------------------------------------------------
+class Target(GameObject):
+    name = "target"
+
+    def __init__(self, name, x, y, config):
+        super().__init__(name, "target", config, x, y, "south")
+
+
 
 # ------------------------------------------------------------
 # CLASS GAMEBOARD:
@@ -624,6 +634,12 @@ class GameBoard(tk.Frame):
         return [[int(any(isinstance(obj, Obstacle) and obj.is_visible() for obj in square))
                 for square in column]
                 for column in self.object_matrix]
+
+    def view_targets(self):
+        return [[int(any(isinstance(obj, Target)  for obj in square))
+                for square in column]
+                for column in self.object_matrix]
+
 
     def refresh(self, event):
         """Redraw the board, possibly in response to window being resized"""

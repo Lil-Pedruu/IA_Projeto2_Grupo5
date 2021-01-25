@@ -14,7 +14,7 @@ class Server(BaseException):
 
         if "use_maps?" in config and config["use_maps?"]:
             config["board_dimensions"] = (len(config["object_map"][0]), len(config["object_map"]))
-            config["bomb_coordinates"], config["goal_coordinates"], config["obstacle_coordinates"] = [], [], []
+            config["bomb_coordinates"], config["goal_coordinates"], config["obstacle_coordinates"], config["target_coordinates"]= [], [], [], []
             config["rewards"] = {}
             for row_index, row in enumerate(config["object_map"]):
                 for char_index, char in enumerate(row):
@@ -28,6 +28,8 @@ class Server(BaseException):
                         config["goal_coordinates"].append((char_index, row_index))
                     elif char == "A":
                         config["start_position"] = (char_index, row_index)
+                    elif char == "T":
+                        config["target_coordinates"].append((char_index,row_index))
 
                 for char_index, char in enumerate(config["reward_map"][row_index]):
                     if char in "NJKGR":
@@ -52,6 +54,7 @@ class Server(BaseException):
         self.initialize_obstacles()
         self.initialize_goals()
         self.initialize_bombs()
+        self.initialize_targets()
 
         self.player = gb.Player('player', *self.config["start_position"], 'south', 'front', self.config)
         self.player.set_home((self.config["start_position"][0],self.config["start_position"][1]))
@@ -73,6 +76,14 @@ class Server(BaseException):
             goal = gb.Goal('goal' + str(i), g[0], g[1], self.config)
             self.board.add(goal, g[0], g[1])
             i += 1
+
+    def initialize_targets(self):
+        i = 1
+        for t in self.config["target_coordinates"]:
+            target = gb.Target('target' + str(i), t[0], t[1], self.config)
+            self.board.add(target, t[0], t[1])
+            i += 1
+
 
     def initialize_bombs(self):
         columns, rows = self.config["board_dimensions"][0], self.config["board_dimensions"][1]
@@ -202,9 +213,12 @@ class Server(BaseException):
                 # recebia self.player
                 print('Obstacles:', self.board.view_obstacles())
                 res = self.board.view_obstacles()
-            elif value == 'goal' or value == 'target':
+            elif value == 'goal':
                 res = self.board.get_goal_position()
                 # print('Goal:',res)
+            elif value =='targets':
+                print('Targets:', self.board.view_targets())
+                res = self.board.view_targets()
             elif value == 'position':
                 res = (self.player.get_x(), self.player.get_y())
                 # print('Position:', res)

@@ -5,7 +5,7 @@ import time
 
 
 # Função que executa um episódio.
-def episode(c, res: int):
+def episode(c):
     msg = c.execute('info', 'targets')
     targets = ast.literal_eval(msg)
     targetList= []
@@ -127,8 +127,8 @@ def main(numEpisodes):
         # Executar episódios.
         for n in range(numEpisodes):
             print(n + 1, 'º episode')
-            path = episode(c, res)[0]  # Realizar um episódio.
-            if episode(c, res)[1]:
+            path = episode(c)[0]  # Realizar um episódio.
+            if episode(c)[1]:
                 QTable = updateQTable(QTable, path, c)  # Atualizar matriz Q-learning.
                 for y in QTable:
                     print(y)
@@ -140,4 +140,4 @@ def main(numEpisodes):
         input()
 
 
-main(numEpisodes=200)
+main(numEpisodes=50)
